@@ -1,4 +1,5 @@
 package utils;
 
-public class ErrorInterceptor {
+public class ErrorInterceptor  {
+
 }

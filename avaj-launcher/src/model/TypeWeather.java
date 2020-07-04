@@ -1,4 +1,9 @@
 package model;
 
-public class TypeWeather {
+public enum TypeWeather {
+    RAIN, FOG, SUN, SNOW;
+
+    TypeWeather() {
+
+    }
 }
