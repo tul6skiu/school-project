@@ -1,17 +1,24 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class Tower {
-    private Flyable flyable;
+    private final List<Flyable> observers = new ArrayList<>();
 
-
-    public Tower(Flyable flyable) {
-        this.flyable = flyable;
+    public void register(Flyable flyable){
+        observers.add(flyable);
     }
 
-    private void register(Flyable flyable){}
 
+    public void unregister(Flyable flyable) {
+        observers.remove(flyable);
+    }
 
-    private void unregister(Flyable flyable) {}
+    protected void conditionsChanger() {
+        for (Flyable flyable : observers) {
+            flyable.updateConditions();
+        }
+    }
 
-    private void conditionsChanger() {}
 }

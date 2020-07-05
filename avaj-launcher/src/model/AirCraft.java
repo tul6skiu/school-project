@@ -1,9 +1,9 @@
 package model;
 
 public abstract class AirCraft {
-    private long id;
-    private String name;
-    private Coordinate coordinate;
+    protected long id;
+    protected String name;
+    protected Coordinate coordinate;
     private static long idCounter = 0;
 
     public AirCraft(String name, Coordinate coordinate) {
@@ -16,4 +16,5 @@ public abstract class AirCraft {
     private long nextId() {
        return ++idCounter;
     }
+
 }
