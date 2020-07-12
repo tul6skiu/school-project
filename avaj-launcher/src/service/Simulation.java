@@ -1,6 +1,7 @@
 package service;
 
 import model.*;
+import utils.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,28 +12,30 @@ public class Simulation {
     public static void main(String[] args) {
         List<Flyable> airCrafts = new ArrayList<>();
         WeatherTower weatherTower = new WeatherTower();
-        String[] lines;
+        String[] lines = new String[0];
         int countIterations;
         byte[] arr = "".getBytes();
 
         if (args.length != 1) {
-            System.out.println("first error");
+            ErrorInterceptor.intercept(new CustomException(CommonResponse.BAD_COUNT_ARGUMENT));
         }
 
         try {
             Files.write(Paths.get("simulation.txt"), arr);
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("second error");
+            ErrorInterceptor.intercept(new CustomException(CommonResponse.BAD_WRITE_FILE));
         }
 
-        if ((lines = checkValidateFile(args[0])) == null) {
-            System.out.println("5 error");
-            return;
+        try {
+            lines = checkValidateFile(args[0]);
+        } catch (IOException e) {
+            ErrorInterceptor.intercept(new CustomException(CommonResponse.BAD_READ_FILE));
         }
+
         countIterations = Integer.parseInt(lines[0]);
         if (countIterations == 0) {
-            System.out.println("9 error");
+            ErrorInterceptor.intercept(new CustomException(CommonResponse.ILLEGAL_COUNT_ITERATION));
             return;
         }
 
@@ -43,7 +46,11 @@ public class Simulation {
         }
 
         for (Flyable flyable: airCrafts) {
-            flyable.registerTower(weatherTower);
+            try {
+                flyable.registerTower(weatherTower);
+            } catch (IOException e) {
+                ErrorInterceptor.intercept(new CustomException(CommonResponse.BAD_WRITE_FILE));
+            }
         }
 
         updateWeather(countIterations, weatherTower);
@@ -66,23 +73,23 @@ public class Simulation {
             checkingTypeAircraft(type);
             coordinate = checkCoordinateAndComposition(Integer.parseInt(str[2]),
                     Integer.parseInt(str[3]), Integer.parseInt(str[4]));
-        }catch (NumberFormatException e) {
-            System.out.println("8 error" + e);
+        }catch (CustomException e) {
+            ErrorInterceptor.intercept(e);
         }
         return AircraftFactory.newAircraft(type, name, coordinate);
     }
 
-    private static void checkingTypeAircraft(String type) throws RuntimeException{
+    private static void checkingTypeAircraft(String type) throws CustomException {
         if (!type.equals(Type.BALOON.getType())
                 && !type.equals(Type.JET_PLANE.getType())
                 && !type.equals(Type.HELICOPTER.getType())) {
-            throw new IllegalArgumentException("7 error");
+            throw new CustomException(CommonResponse.ILLEGAL_AIRCRAFT);
         }
     }
 
     private static Coordinate checkCoordinateAndComposition(int longitudeInput, int latitudeInput, int heightInput) {
         if (longitudeInput < 0 || latitudeInput < 0 || heightInput < 0) {
-            System.out.println("6 error");
+           throw new CustomException(CommonResponse.ILLEGAL_COORDINATES);
         }
           return reorderingValue(latitudeInput, latitudeInput, heightInput);
     }
@@ -123,16 +130,10 @@ public class Simulation {
         return currentPoint;
     }
 
-    private static String[] checkValidateFile(String fileName) {
+    private static String[] checkValidateFile(String fileName) throws IOException {
        byte[] arr;
-        try {
            arr = Files.readAllBytes(Paths.get(fileName));
            String text = Arrays.toString(arr);
            return text.split("\n");
-       } catch (IOException e) {
-            System.out.println("4 error");
-            e.printStackTrace();
-        }
-        return null;
     }
 }

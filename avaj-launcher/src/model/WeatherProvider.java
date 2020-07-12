@@ -33,7 +33,7 @@ public class WeatherProvider {
     }
 
 
-    public String getCurrentWeather(Coordinate coordinate) {
+    public static String getCurrentWeather(Coordinate coordinate) {
         //todo: логика возвращает текущию погоду относительно кординат
         return weather[coordinate.getLongitude() - 1
                 + coordinate.getLatitude() * (Point.MAX_LATITUDE.getPoint())
