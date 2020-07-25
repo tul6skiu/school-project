@@ -1,7 +1,14 @@
 package model;
 
+import org.w3c.dom.ls.LSOutput;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static java.nio.file.StandardOpenOption.APPEND;
 
 public abstract class Tower {
     private final List<Flyable> observers = new ArrayList<>();
@@ -12,11 +19,13 @@ public abstract class Tower {
 
 
     public void unregister(Flyable flyable) {
+        System.out.println(flyable.toString() + "       down");
         observers.remove(flyable);
     }
 
     protected void conditionsChanger() {
-        for (Flyable flyable : observers) {
+        List<Flyable> copyList = new ArrayList<>(observers);
+        for (Flyable flyable : copyList) {
             flyable.updateConditions();
         }
     }

@@ -6,12 +6,12 @@ import utils.ErrorInterceptor;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static java.nio.file.StandardOpenOption.APPEND;
 
 public class Baloon extends AirCraft implements Flyable {
+    public Boolean currentAirCraftIsDown = false;
     private WeatherTower weatherTower;
 
     public Baloon(String name, Coordinate coordinate) {
@@ -41,6 +41,9 @@ public class Baloon extends AirCraft implements Flyable {
         }
         try {
             Files.write(Paths.get("simulation.txt"), (builder.toString() + extra).getBytes(), APPEND);
+            if (currentAirCraftIsDown) {
+                unregisterCurrentAirCraft();
+            }
         } catch (IOException e) {
             ErrorInterceptor.intercept(new CustomException(CommonResponse.BAD_WRITE_FILE));
         }
@@ -64,10 +67,12 @@ public class Baloon extends AirCraft implements Flyable {
     }
 
     private void change(int longitude, int latitude, int height) {
+
         if (this.coordinate.getLongitude() + longitude < Point.MAX_LONGITUDE.getPoint()) {
             longitude += this.coordinate.getLongitude();
         } else {
             longitude = Point.MAX_LONGITUDE.getPoint();
+            currentAirCraftIsDown = true;
             weatherTower.unregister(this);
         }
 
@@ -75,6 +80,7 @@ public class Baloon extends AirCraft implements Flyable {
             latitude += this.coordinate.getLatitude();
         else {
             latitude = Point.MAX_LATITUDE.getPoint();
+            currentAirCraftIsDown = true;
             weatherTower.unregister(this);
         }
 
@@ -86,8 +92,22 @@ public class Baloon extends AirCraft implements Flyable {
         }
         else {
             height = 0;
+            currentAirCraftIsDown = true;
             weatherTower.unregister(this);
         }
         this.coordinate = new Coordinate(longitude, latitude, height);
+    }
+
+    private void unregisterCurrentAirCraft() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Balloon#")
+                .append(this.name).append("(")
+                .append(this.id).append(")").append(" unregistration weather tower ");
+
+        try {
+            Files.write(Paths.get("simulation.txt"), builder.toString().getBytes(), APPEND);
+        } catch (IOException e) {
+            ErrorInterceptor.intercept(new CustomException(CommonResponse.BAD_WRITE_FILE));
+        }
     }
 }

@@ -16,9 +16,10 @@ public class Simulation {
         int countIterations;
         byte[] arr = "".getBytes();
 
-        if (args.length != 1) {
-            ErrorInterceptor.intercept(new CustomException(CommonResponse.BAD_COUNT_ARGUMENT));
-        }
+//        if (args.length != 1) {
+//            ErrorInterceptor.intercept(new CustomException(CommonResponse.BAD_COUNT_ARGUMENT));
+//            return;
+//        }
 
         try {
             Files.write(Paths.get("simulation.txt"), arr);
@@ -28,11 +29,10 @@ public class Simulation {
         }
 
         try {
-            lines = checkValidateFile(args[0]);
+            lines = checkValidateFile("src/resource/test.txt");
         } catch (IOException e) {
             ErrorInterceptor.intercept(new CustomException(CommonResponse.BAD_READ_FILE));
         }
-
         countIterations = Integer.parseInt(lines[0]);
         if (countIterations == 0) {
             ErrorInterceptor.intercept(new CustomException(CommonResponse.ILLEGAL_COUNT_ITERATION));
@@ -95,18 +95,14 @@ public class Simulation {
     }
     
     private static Coordinate reorderingValue(int longitude, int latitude, int height) {
-        int newLongitude = 0;
-        int newLatitude = 0;
-        int newHeight  = 0;
-        if (longitude > Point.MAX_LONGITUDE.getPoint()) 
-            newLongitude = reorder(longitude, Point.MAX_LONGITUDE.getPoint(), Point.MAX_LONGITUDE.getTrackCode());
-        if (latitude > Point.MAX_LATITUDE.getPoint()) 
-            newLatitude = reorder(latitude, Point.MAX_LATITUDE.getPoint(), Point.MAX_LATITUDE.getTrackCode());
+        if (longitude > Point.MAX_LONGITUDE.getPoint())
+            longitude = reorder(longitude, Point.MAX_LONGITUDE.getPoint(), Point.MAX_LONGITUDE.getTrackCode());
+        if (latitude > Point.MAX_LATITUDE.getPoint())
+            latitude = reorder(latitude, Point.MAX_LATITUDE.getPoint(), Point.MAX_LATITUDE.getTrackCode());
         if (height > Point.MAX_HEIGHT.getPoint())
-            newHeight = reorder(height, Point.MAX_HEIGHT.getPoint(), Point.MAX_HEIGHT.getTrackCode());
+            height = reorder(height, Point.MAX_HEIGHT.getPoint(), Point.MAX_HEIGHT.getTrackCode());
         
-        return constructCoordinate(newLongitude, newLatitude, newHeight);
-        
+        return constructCoordinate(longitude, latitude, height);
     }
 
     private static Coordinate constructCoordinate(int l1, int l2, int l3) {
@@ -114,26 +110,28 @@ public class Simulation {
     }
 
     private static int reorder(int currentPoint, int max, String string) {
-        int randomCount;
-        Random random;
+        int randomCount = 0;
+        Random random = new Random();
         if (string.equals(Point.MAX_LONGITUDE.getTrackCode()))
-            random = new Random(10);
+            randomCount = random.nextInt(32);
         else if (string.equals(Point.MAX_LATITUDE.getTrackCode()))
             random = new Random(15);
-        else
-            random = new Random(13);
-
+        else if (string.equals(Point.MAX_HEIGHT.getTrackCode())) {
+            randomCount = random.nextInt(15);
+        }
         while (currentPoint > max) {
-             randomCount = random.nextInt();
-             currentPoint = currentPoint - randomCount;
+            currentPoint = currentPoint - randomCount;
+            randomCount = random.nextInt(30);
+
         }
         return currentPoint;
     }
 
     private static String[] checkValidateFile(String fileName) throws IOException {
        byte[] arr;
+        System.out.println(fileName);
            arr = Files.readAllBytes(Paths.get(fileName));
-           String text = Arrays.toString(arr);
+           String text = new String(arr);
            return text.split("\n");
     }
 }

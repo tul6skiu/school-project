@@ -2,8 +2,8 @@ package model;
 
 public class WeatherProvider {
     private static WeatherProvider weatherProvider;
-    protected static String[] weather;
-    private static int size;
+    private static int size = Point.MAX_LONGITUDE.getPoint() * Point.MAX_LATITUDE.getPoint() * Point.MAX_HEIGHT.getPoint();
+    protected static String[] weather = new String[size];
 
     private WeatherProvider() {
         settingData();
@@ -22,10 +22,12 @@ public class WeatherProvider {
 
     public static WeatherProvider getProvider() {
         if (weatherProvider == null) {
-            settingData();
-            changeWeather();
-        }
+           setWeatherProvider(new WeatherProvider());
+           return weatherProvider;
+        }else {
             return weatherProvider;
+        }
+
     }
 
     public static void setSize(int size) {
@@ -44,5 +46,9 @@ public class WeatherProvider {
         setSize(Point.MAX_LONGITUDE.getPoint()
                 * Point.MAX_LATITUDE.getPoint()
                 * Point.MAX_HEIGHT.getPoint());
+    }
+
+    public static void setWeatherProvider(WeatherProvider weatherProvider) {
+        WeatherProvider.weatherProvider = weatherProvider;
     }
 }

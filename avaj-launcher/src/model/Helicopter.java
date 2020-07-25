@@ -40,6 +40,7 @@ public class Helicopter extends AirCraft implements Flyable{
             extra = " This snow? I'm going down\n";
         }
         try {
+            System.out.println( " This snow? I'm going down\n" + (builder.toString() + extra).getBytes());
             Files.write(Paths.get("simulation.txt"), (builder.toString() + extra).getBytes(), APPEND);
         } catch (IOException e) {
             ErrorInterceptor.intercept(new CustomException(CommonResponse.BAD_WRITE_FILE));
